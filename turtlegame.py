@@ -72,11 +72,7 @@ timer_turtle.penup()
 timer_turtle.setposition(0, 310)  
 
 # Set game time limit for 1 minute (60 seconds)
-timeout = time.time() + 60  
-
-# Sound cooldown tracking
-sound_cooldown = {"bounce": 0, "chomp": 0}
-cooldown_time = 0.5  
+timeout = time.time() + 60   
 
 # Define functions
 def turn_left():
@@ -93,10 +89,10 @@ def isCollision(t1, t2):
            return False
        
 def play_sound(sound):
-    current_time = time.time()
-    if current_time - sound_cooldown[sound] > cooldown_time:
-        winsound.PlaySound(f"{sound}.wav", winsound.SND_ASYNC)
-        sound_cooldown[sound] = current_time
+    if sound == "bounce":
+        winsound.PlaySound("bounce.wav", winsound.SND_ASYNC) 
+    elif sound == "chomp":
+        winsound.PlaySound("chomp.wav", winsound.SND_ASYNC)
 
 # Set keyboard binding
 turtle.listen()
@@ -136,7 +132,7 @@ def main_game_loop():
 
         if remaining_time != last_displayed_time:
             timer_turtle.clear()  
-            timer_turtle.write(f"Time Left: {remaining_time}", align="center", font=("Arial", 14, "normal"))  # Display remaining time
+            timer_turtle.write(f"Time Left: {remaining_time}", align="center", font=("Arial", 14, "normal")) 
             last_displayed_time = remaining_time 
 
         if elapsed_time >= 60:  
@@ -170,17 +166,15 @@ def main_game_loop():
             player.setx(player.xcor() - 10)  
             player.sety(player.ycor() - 10)  
             player.right(180)  
-            play_sound("bounce")
 
         # Check if the opponent is stuck in the corner (both x and y boundaries)
         if (comp.xcor() > 280 and comp.ycor() > 280) or (comp.xcor() < -280 and comp.ycor() > 280) or (comp.xcor() > 280 and comp.ycor() < -280) or (comp.xcor() < -280 and comp.ycor() < -280):
             comp.setx(comp.xcor() - 10)  
             comp.sety(comp.ycor() - 10)  
             comp.right(180)  
-            play_sound("bounce")
 
-        #Boundary Comp Checking x coordinate
-        if comp.xcor() > 280 or comp.xcor() <-280:
+        # Boundary Comp Checking x coordinate
+        if comp.xcor() > 280 or comp.xcor() < -280:
             # If near boundary, move them back into bounds
             if comp.xcor() > 280:
                 comp.setx(280)
@@ -190,9 +184,9 @@ def main_game_loop():
             comp.right(random.randint(30, 155))
             play_sound("bounce")
 
-        #Boundary Comp Checking y coordinate
-        if comp.ycor() > 280 or comp.ycor() <-280:
-        # If near boundary, move them back into bounds
+        # Boundary Comp Checking y coordinate
+        if comp.ycor() > 280 or comp.ycor() < -280:
+            # If near boundary, move them back into bounds
             if comp.ycor() > 280:
                 comp.sety(280)
             if comp.ycor() < -280:
@@ -206,42 +200,40 @@ def main_game_loop():
             food.forward(3)
 
             # Boundary Food Checking x coordinate
-            if food.xcor() > 290 or food.xcor() <- 290:
-                food.right(180)
-                play_sound("bounce")
+            if food.xcor() > 290 or food.xcor() < -290:
+                food.right(180)   
 
             # Boundary Food Checking y coordinate
-            if food.ycor() > 290 or food.ycor() <- 290:
+            if food.ycor() > 290 or food.ycor() < -290:
                 food.right(180)
-                play_sound("bounce")
             
             # Player Collision checking
             if isCollision(player, food):
                 food.setposition(random.randint(-290, 290), random.randint(-290, 290))
                 food.right(random.randint(0, 360))
                 play_sound("chomp")
-                score +=1
+                score += 1
                 # Draw the score on the screen
                 mypen.undo()
                 mypen.penup()
                 mypen.hideturtle()
                 mypen.setposition(-290, 310)
-                scorestring ="Score: %s" % score
+                scorestring = "Score: %s" % score
                 mypen.write(scorestring, False, align='left', font=('Arial', 14, 'normal'))
 
             # Comp Collision checking
             if isCollision(comp, food):
-               food.setposition(random.randint(-290, 290), random.randint(-290, 290))
-               food.right(random.randint(0,360))
-               play_sound("chomp")
-               compscore+=1
-               #Draw the Comp score on the screen
-               mypen2.undo()
-               mypen2.penup()
-               mypen2.hideturtle()
-               mypen2.setposition(200, 310)
-               scorestring ="Score: %s" %compscore
-               mypen2.write(scorestring, False, align="left", font=("Arial", 14, "normal"))
+                food.setposition(random.randint(-290, 290), random.randint(-290, 290))
+                food.right(random.randint(0, 360))
+                play_sound("chomp")
+                compscore += 1
+                # Draw the Comp score on the screen
+                mypen2.undo()
+                mypen2.penup()
+                mypen2.hideturtle()
+                mypen2.setposition(200, 310)
+                scorestring = "Score: %s" % compscore
+                mypen2.write(scorestring, False, align="left", font=('Arial', 14, 'normal'))
 
     if (int(score) > int(compscore)):
         mypen.setposition(0, 0)
@@ -252,7 +244,50 @@ def main_game_loop():
         mypen.color("yellow")
         mypen.write("Game Over: You LOSE", False, align="center", font=("Arial", 28, "normal"))
 
-    delay = input("Press Enter to finish.")    
+    # Display prompt to play again
+    mypen.setposition(0, -50)
+    mypen.write("Press Enter to play again", False, align="center", font=("Arial", 20, "normal"))
+
+    # Wait for the user to press Enter to restart the game
+    turtle.listen()
+    turtle.onkey(lambda: (reset_game(), display_start_message()), 'Return')  
+
+# Function to reset the game state
+def reset_game():
+    global score, compscore, foods, player, comp, mypen, mypen2, timer_turtle
+    score = 0
+    compscore = 0
+
+    # Reset player position
+    player.setposition(0, 0)
+    player.setheading(0)
+
+    # Reset opponent position
+    comp.setposition(random.randint(-290, 290), random.randint(-290, 290))
+    comp.setheading(0)
+
+    # Reset food positions
+    for food in foods:
+        food.setposition(random.randint(-290, 290), random.randint(-290, 290))
+        food.setheading(0)
+
+    # Clear scores on the screen
+    mypen.clear()
+    mypen2.clear()
+
+    # Reset timer display
+    timer_turtle.clear()
+
+    # Reset the game boundaries
+    mypen.penup()
+    mypen.color("white")  
+    mypen.setposition(-300, -300)
+    mypen.pendown()
+    mypen.pensize(3)
+    for side in range(4):
+        mypen.forward(600)
+        mypen.left(90)
+    mypen.hideturtle()
 
 display_start_message()
 turtle.done()  
