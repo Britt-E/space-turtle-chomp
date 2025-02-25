@@ -19,3 +19,12 @@ Space Turtle Chomp is an engaging and interactive game built using Python's Turt
 - **Python**: The game is developed using Python, leveraging its Turtle Graphics library for rendering graphics and handling user input.
 - **Winsound**: Utilised for playing sound effects during gameplay.
 
+## Installation
+To run the game, ensure you have Python installed on your machine. Clone the repository and run the `turtlegame.py` file.
+
+## How to Play
+1. Start the game by pressing the "Enter" key.
+2. Control your turtle using the left and right arrow keys.
+3. Collect as much food as possible within the time limit.
+4. Compete against the AI opponent and try to achieve a higher score.
+5. The game ends after 60 seconds, and you can choose to play again.
